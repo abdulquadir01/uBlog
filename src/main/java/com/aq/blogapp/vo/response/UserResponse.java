@@ -1,6 +1,9 @@
 package com.aq.blogapp.vo.response;
 
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.RequiredArgsConstructor;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -12,16 +15,16 @@ import java.util.Set;
 @RequiredArgsConstructor
 public class UserResponse {
 
-    private Long userId;
+  private Long userId;
 
-    private String firstName;
+  private String firstName;
 
-    private String lastName;
+  private String lastName;
 
-    private String email;
+  private String email;
 
-    private String about;
+  private String about;
 
-    private Set<RoleResponse> roles = new HashSet<>();
+  private Set<RoleResponse> roles = new HashSet<>();
 
 }

@@ -1,7 +1,10 @@
 package com.aq.blogapp.vo.response;
 
-import com.aq.blogapp.vo.DTO.UserDTO;
-import lombok.*;
+import com.aq.blogapp.vo.dto.UserDto;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.RequiredArgsConstructor;
 
 import java.util.List;
 
@@ -12,7 +15,7 @@ import java.util.List;
 @RequiredArgsConstructor
 public class UsersResponse {
 
-    private List<UserDTO> users;
+    private List<UserDto> users;
     private int pageNumber;
     private int pageSize;
     private int totalPages;

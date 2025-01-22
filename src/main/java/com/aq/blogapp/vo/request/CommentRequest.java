@@ -10,6 +10,5 @@ import lombok.RequiredArgsConstructor;
 @AllArgsConstructor
 @RequiredArgsConstructor
 public class CommentRequest {
-    private String comment;
-
+    private String content;
 }

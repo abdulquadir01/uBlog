@@ -2,6 +2,8 @@ package com.aq.blogapp.services.impl;
 
 import com.aq.blogapp.services.FileService;
 import lombok.RequiredArgsConstructor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -16,37 +18,47 @@ import java.util.UUID;
 @RequiredArgsConstructor
 public class FileServiceImpl implements FileService {
 
-    @Override
-    public String uploadImg(String imagePath, MultipartFile imageFile) throws IOException {
-//        file name
-        String originalImageName = imageFile.getOriginalFilename();
+  private final Logger logger = LoggerFactory.getLogger(FileServiceImpl.class);
 
-//        random name generator
-        String randomId = UUID.randomUUID().toString();
+  @Override
+  public String uploadImg(String imagePath, MultipartFile imageFile) throws IOException {
+//    file name
+    Optional<String> originalImageName = Optional.ofNullable(imageFile.getOriginalFilename());
 
-        String newImageName = randomId.concat(originalImageName.substring(Optional.of(originalImageName.lastIndexOf(".")).get()));
+//    random name generator
+    String randomId = UUID.randomUUID().toString();
+    String imageNameWithoutExtension = originalImageName.map(str -> str.lastIndexOf(".")).toString();
+    String newImageName = randomId.concat(imageNameWithoutExtension);
 
-//        full path
-        String filePath = imagePath + File.separator + newImageName;
+    /**
+     if(originalImageName.isPresent()) {
+     String imageNameWithoutExtension = originalImageName.get()
+     .substring( originalImageName.get().lastIndexOf(".") );
+     newImageName = randomId.concat(imageNameWithoutExtension);
+     }
+     */
 
-//        Create folder if not created
-        File f = new File(imagePath);
-        if (!f.exists()) {
-            f.mkdir();
-        }
+//    full path
+    String filePath = imagePath + File.separator + newImageName;
 
-//        file copy from input-stream to a file
-        Files.copy(imageFile.getInputStream(), Paths.get(filePath));
-
-        return newImageName;
+//    Create folder if not created
+    File file = new File(imagePath);
+    if (!file.exists()) {
+      file.mkdir();
     }
 
+//    file copy from input-stream to a file
+    Files.copy(imageFile.getInputStream(), Paths.get(filePath));
 
-    @Override
-    public InputStream getBlogImage(String imagePath, String fileName) throws FileNotFoundException {
+    return newImageName;
+  }
 
-        String fullPath = imagePath + File.separator + fileName;
 
-        return new FileInputStream(fullPath);
-    }
+  @Override
+  public InputStream getBlogImage(String imagePath, String fileName) throws FileNotFoundException {
+
+    String fullPath = imagePath + File.separator + fileName;
+
+    return new FileInputStream(fullPath);
+  }
 }

@@ -1,7 +1,10 @@
 package com.aq.blogapp.vo.response;
 
-import com.aq.blogapp.vo.DTO.BlogDTO;
-import lombok.*;
+import com.aq.blogapp.vo.dto.BlogDto;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.RequiredArgsConstructor;
 
 import java.util.List;
 
@@ -11,7 +14,7 @@ import java.util.List;
 @RequiredArgsConstructor
 public class BlogsResponse {
 
-    private List<BlogDTO> blogs;
+    private List<BlogDto> blogs;
     private int pageNumber;
     private int pageSize;
     private int totalPages;

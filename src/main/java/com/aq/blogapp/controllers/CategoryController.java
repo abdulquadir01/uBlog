@@ -1,153 +1,153 @@
 package com.aq.blogapp.controllers;
 
-
-import com.aq.blogapp.vo.DTO.CategoryDTO;
 import com.aq.blogapp.exceptions.ResourceNotFoundException;
-import com.aq.blogapp.vo.response.ApiResponse;
 import com.aq.blogapp.services.CategoryService;
 import com.aq.blogapp.utils.AppUtils;
+import com.aq.blogapp.vo.dto.CategoryDto;
+import com.aq.blogapp.vo.response.ApiResponse;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import javax.validation.Valid;
 import java.util.ArrayList;
 import java.util.List;
 
+
 @CrossOrigin
 @RestController
-@RequiredArgsConstructor
 @RequestMapping("/api/categories")
+@RequiredArgsConstructor
 public class CategoryController {
 
-    private final CategoryService categoryService;
+  private final Logger logger = LoggerFactory.getLogger(CategoryController.class);
 
-//    public CategoryController(CategoryService categoryService) {
-//        this.categoryService = categoryService;
-//    }
+  private final CategoryService categoryService;
 
+  @GetMapping
+  public ResponseEntity<Object> getAllCategory() {
+    List<CategoryDto> categoryDtoList = new ArrayList<>();
 
-    @GetMapping
-    public ResponseEntity<Object> getAllCategory() {
-        List<CategoryDTO> categoryDTOList = new ArrayList<>();
+    try {
+      categoryDtoList = categoryService.getAllCategory();
 
-        try {
-            categoryDTOList = categoryService.getAllCategory();
+      return new ResponseEntity<>(categoryDtoList, HttpStatus.OK);
 
-            return new ResponseEntity<>(categoryDTOList, HttpStatus.OK);
+    } catch (Exception ex) {
 
-        } catch (Exception ex) {
-
-            return new ResponseEntity<>(
-                    new ApiResponse(
-                            HttpStatus.INTERNAL_SERVER_ERROR.getReasonPhrase(),
-                            HttpStatus.INTERNAL_SERVER_ERROR.value()),
-                    HttpStatus.INTERNAL_SERVER_ERROR
-            );
-        }
-
+      return new ResponseEntity<>(
+        new ApiResponse(HttpStatus.INTERNAL_SERVER_ERROR.getReasonPhrase(),
+          HttpStatus.INTERNAL_SERVER_ERROR.value()
+        ),
+        HttpStatus.INTERNAL_SERVER_ERROR
+      );
     }
 
+  }
 
-    @GetMapping("/{categoryId}")
-    public ResponseEntity<Object> getCategoryById(@PathVariable Long categoryId) {
-        CategoryDTO categoryDtoById = new CategoryDTO();
 
-        try {
-            categoryDtoById = categoryService.getCategoryById(categoryId);
-            System.out.println(categoryDtoById.toString());
+  @GetMapping("/{categoryId}")
+  public ResponseEntity<Object> getCategoryById(@PathVariable Long categoryId) {
+    CategoryDto categoryDtoById;
 
-            return new ResponseEntity<>(categoryDtoById, HttpStatus.OK);
+    try {
+      categoryDtoById = categoryService.getCategoryById(categoryId);
+      logger.info("CategoryDto by id : {}", categoryDtoById);
 
-        } catch (ResourceNotFoundException ex) {
+      return new ResponseEntity<>(categoryDtoById, HttpStatus.OK);
 
-            return new ResponseEntity<>(
-                    new ApiResponse(
-                            HttpStatus.NOT_FOUND.getReasonPhrase(),
-                            HttpStatus.NOT_FOUND.value()),
-                    HttpStatus.NOT_FOUND
-            );
-        }
+    } catch (ResourceNotFoundException ex) {
 
+      return new ResponseEntity<>(
+        new ApiResponse(HttpStatus.NOT_FOUND.getReasonPhrase(),
+          HttpStatus.NOT_FOUND.value()
+        ),
+        HttpStatus.NOT_FOUND
+      );
     }
 
+  }
 
-    @PostMapping
-    public ResponseEntity<Object> createCategory(@Valid @RequestBody CategoryDTO categoryDTO) {
-        CategoryDTO createdCategoryDto = new CategoryDTO();
 
-        try {
-            if (!AppUtils.anyEmpty(categoryDTO)) {
-                createdCategoryDto = categoryService.createCategory(categoryDTO);
+  @PostMapping
+  public ResponseEntity<Object> createCategory(@Valid @RequestBody CategoryDto categoryDTO) {
+    CategoryDto createdCategoryDto;
 
-                return new ResponseEntity<>(createdCategoryDto, HttpStatus.CREATED);
-            } else {
+    try {
+      if (Boolean.FALSE.equals(AppUtils.anyEmpty(categoryDTO))) {
+        createdCategoryDto = categoryService.createCategory(categoryDTO);
 
-                return new ResponseEntity<>(
-                        new ApiResponse(
-                                HttpStatus.BAD_REQUEST.getReasonPhrase(),
-                                HttpStatus.BAD_REQUEST.value()),
-                        HttpStatus.BAD_REQUEST
-                );
-            }
+        return new ResponseEntity<>(createdCategoryDto, HttpStatus.CREATED);
+      } else {
 
-        } catch (Exception ex) {
+        return new ResponseEntity<>(
+          new ApiResponse(HttpStatus.BAD_REQUEST.getReasonPhrase(),
+            HttpStatus.BAD_REQUEST.value()
+          ),
+          HttpStatus.BAD_REQUEST
+        );
+      }
 
-            return new ResponseEntity<>(
-                    new ApiResponse(
-                            HttpStatus.INTERNAL_SERVER_ERROR.getReasonPhrase(),
-                            HttpStatus.INTERNAL_SERVER_ERROR.value()),
-                    HttpStatus.INTERNAL_SERVER_ERROR
-            );
-        }
+    } catch (Exception ex) {
+
+      return new ResponseEntity<>(
+        new ApiResponse(HttpStatus.INTERNAL_SERVER_ERROR.getReasonPhrase(),
+          HttpStatus.INTERNAL_SERVER_ERROR.value()
+        ),
+        HttpStatus.INTERNAL_SERVER_ERROR
+      );
+    }
+  }
+
+
+  @PutMapping("/{categoryId}")
+  public ResponseEntity<Object> updateCategory(@PathVariable Long categoryId, @Valid @RequestBody CategoryDto categoryDTO) {
+    CategoryDto updatedCategory;
+
+    try {
+      updatedCategory = categoryService.updateCategory(categoryId, categoryDTO);
+
+      return new ResponseEntity<>(updatedCategory, HttpStatus.OK);
+
+    } catch (Exception ex) {
+
+      return new ResponseEntity<>(
+        new ApiResponse("Internal Server Error",
+          HttpStatus.INTERNAL_SERVER_ERROR.value()
+        ),
+        HttpStatus.INTERNAL_SERVER_ERROR
+      );
     }
 
+  }
 
-    @PutMapping("/{categoryId}")
-    public ResponseEntity<Object> updateCategory(@PathVariable Long categoryId, @Valid @RequestBody CategoryDTO categoryDTO) {
-        CategoryDTO updatedCategory = new CategoryDTO();
 
-        try {
-            updatedCategory = categoryService.updateCategory(categoryId, categoryDTO);
+  @DeleteMapping("/{categoryId}")
+  public ResponseEntity<Object> deleteCategory(@PathVariable Long categoryId) {
 
-            return new ResponseEntity<>(updatedCategory, HttpStatus.OK);
+    try {
+      categoryService.deleteCategory(categoryId);
 
-        } catch (Exception ex) {
+      return new ResponseEntity<>(
+        new ApiResponse("Category Deleted Successfully",
+          HttpStatus.OK.value()
+        ),
+        HttpStatus.OK
+      );
 
-            return new ResponseEntity<>(
-                    new ApiResponse(
-                            "Internal Server Error",
-                            HttpStatus.INTERNAL_SERVER_ERROR.value()),
-                    HttpStatus.INTERNAL_SERVER_ERROR
-            );
-        }
+    } catch (Exception ex) {
 
+      return new ResponseEntity<>(
+        new ApiResponse(
+          HttpStatus.INTERNAL_SERVER_ERROR.getReasonPhrase(),
+          HttpStatus.INTERNAL_SERVER_ERROR.value()
+        ),
+        HttpStatus.INTERNAL_SERVER_ERROR
+      );
     }
-
-
-    @DeleteMapping("/{categoryId}")
-    public ResponseEntity<Object> deleteCategory(@PathVariable Long categoryId) {
-
-        try {
-            categoryService.deleteCategory(categoryId);
-
-            return new ResponseEntity<>(
-                    new ApiResponse(
-                            "Category Deleted Successfully",
-                            HttpStatus.OK.value()),
-                    HttpStatus.OK
-            );
-
-        } catch (Exception ex) {
-
-            return new ResponseEntity<>(
-                    new ApiResponse(
-                            HttpStatus.INTERNAL_SERVER_ERROR.getReasonPhrase(),
-                            HttpStatus.INTERNAL_SERVER_ERROR.value()),
-                    HttpStatus.INTERNAL_SERVER_ERROR
-            );
-        }
-    }
+  }
 
 }

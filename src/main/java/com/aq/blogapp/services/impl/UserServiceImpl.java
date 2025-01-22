@@ -1,175 +1,150 @@
 package com.aq.blogapp.services.impl;
 
-import com.aq.blogapp.vo.DTO.UserDTO;
-import com.aq.blogapp.constants.AppConstants;
-import com.aq.blogapp.exceptions.ResourceNotFoundException;
-import com.aq.blogapp.utils.mappers.UserMapper;
+import com.aq.blogapp.constants.UBlogConstants;
 import com.aq.blogapp.entity.Role;
 import com.aq.blogapp.entity.User;
+import com.aq.blogapp.exceptions.ResourceNotFoundException;
 import com.aq.blogapp.respositories.RoleRepository;
 import com.aq.blogapp.respositories.UserRepository;
 import com.aq.blogapp.services.UserService;
 import com.aq.blogapp.utils.AppUtils;
+import com.aq.blogapp.utils.mappers.UserMapper;
+import com.aq.blogapp.vo.dto.UserDto;
 import lombok.RequiredArgsConstructor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.NoSuchElementException;
-import java.util.stream.Collectors;
 
+import static com.aq.blogapp.constants.UBlogConstants.*;
 
 
 @Service
 @RequiredArgsConstructor
 public class UserServiceImpl implements UserService {
+  private final Logger logger = LoggerFactory.getLogger(UserServiceImpl.class);
 
-    private final UserMapper userMapper;
-    private final UserRepository userRepository;
-    private final PasswordEncoder passwordEncoder;
-    private final RoleRepository roleRepository;
-
-//    public UserServiceImpl(
-//            UserMapper userMapper,
-//            UserRepository userRepository,
-//            PasswordEncoder passwordEncoder,
-//            RoleRepository roleRepository
-//    ){
-//        this.userMapper = userMapper;
-//        this.userRepository = userRepository;
-//        this.passwordEncoder = passwordEncoder;
-//        this.roleRepository = roleRepository;
-//    }
+  private final UserMapper userMapper;
+  private final UserRepository userRepository;
+  private final PasswordEncoder passwordEncoder;
+  private final RoleRepository roleRepository;
 
 
-    @Override
-    public List<UserDTO> getAllUsers() {
+  @Override
+  public List<UserDto> getAllUsers() {
+    logger.info("Fetch all User query fired.");
+    return userRepository.findAll()
+      .stream()
+      .map(userMapper::userToUserDto)
+      .toList();
+  }
 
-        List<UserDTO> userDTOList = new ArrayList<>();
 
-        userDTOList = userRepository
-                .findAll()
-                .stream()
-                .map(userMapper::userToUserDto)
-                .collect(Collectors.toList());
+  @Override
+  public UserDto getUserById(Long id) {
+    UserDto userDtoById = new UserDto();
 
-        return userDTOList;
+    try {
+      if (id != null) {
+        userDtoById = userRepository.findById(id)
+          .map(userMapper::userToUserDto)
+          .orElseThrow(() -> new ResourceNotFoundException("User", ID, id));
+      }
+    } catch (NoSuchElementException ex) {
+      throw new ResourceNotFoundException("User", USER_ID, id);
+    }
+    return userDtoById;
+  }
+
+  @Override
+  public UserDto getUserByEmail(String email) {
+    return userRepository.findByEmail(email)
+      .map(userMapper::userToUserDto)
+      .orElseThrow(() -> new ResourceNotFoundException(EMAIL, email));
+  }
+
+  @Override
+  public UserDto createUser(UserDto userDTO) {
+    UserDto newUserDto = new UserDto();
+
+    if (Boolean.FALSE.equals(AppUtils.anyEmpty(userDTO))) {
+      return saveAndReturnDTO(userMapper.userDtoToUser(userDTO));
     }
 
+    return newUserDto;
+  }
 
-    @Override
-    public UserDTO getUserById(Long id) {
-        UserDTO userDTOById = null;
 
-        try {
-            if (id != null) {
-                userDTOById = userRepository
-                        .findById(id)
-                        .map(userMapper::userToUserDto)
-                        .orElseThrow(() -> new ResourceNotFoundException("User", "Id", id));
-            }
-        } catch (NoSuchElementException ex) {
-            throw new ResourceNotFoundException("User", "userId", id);
-        }
+  @Override
+  public UserDto updateUser(Long id, UserDto userDTO) {
+    UserDto updatedUser = new UserDto();
+    User existingUser;
+    try {
+      existingUser = userRepository.findById(id)
+        .orElseThrow(() -> new ResourceNotFoundException("User", ID, id));
 
-        return userDTOById;
+      existingUser.setFirstName(userDTO.getFirstName());
+      existingUser.setLastName(userDTO.getLastName());
+      existingUser.setEmail(userDTO.getEmail());
+      existingUser.setPassword(userDTO.getPassword());
+      existingUser.setAbout(userDTO.getAbout());
+
+      updatedUser = userMapper.userToUserDto(userRepository.save(existingUser));
+
+    } catch (ResourceNotFoundException rnfe) {
+      logger.info("Error message : {}", rnfe.getMessage());
     }
 
+    return updatedUser;
+  }
 
-    @Override
-    public UserDTO getUserByEmail(String email){
-        return userRepository
-                    .findByEmail(email)
-                    .map(userMapper::userToUserDto)
-                    .orElseThrow( ()-> new ResourceNotFoundException("email", email) );
+  @Override
+  public void deleteUser(Long id) {
+
+    try {
+      userRepository.deleteById(id);
+    } catch (EmptyResultDataAccessException erdae) {
+      logger.info("Error message: {}", erdae.getMessage());
+      logger.info("Error cause: {}", String.valueOf(erdae.getCause()));
+      throw new ResourceNotFoundException("User", ID, id);
+    }
+  }
+
+
+  @Override
+  public UserDto registerUser(UserDto userDTO) {
+
+    User newUser = userMapper.userDtoToUser(userDTO);
+
+//    encoding the password
+    newUser.setPassword(passwordEncoder.encode(newUser.getPassword()));
+
+//    roles
+    Role role = roleRepository.findById(UBlogConstants.ROLE_NORMAL_CODE).get();
+    logger.info("Found role by id : {} ", role);
+    newUser.getRoles().add(role);
+
+    User registeredUser = userRepository.save(newUser);
+
+    return userMapper.userToUserDto(registeredUser);
+  }
+
+
+  //  PRIVATE methods
+  private UserDto saveAndReturnDTO(User user) {
+    UserDto returnedDto = new UserDto();
+    User savedUser;
+
+    if (user != null) {
+      savedUser = userRepository.save(user);
+      returnedDto = userMapper.userToUserDto(savedUser);
     }
 
-
-    @Override
-    public UserDTO createUser(UserDTO userDTO) {
-        UserDTO newUserDTO = new UserDTO();
-
-
-        if (!AppUtils.anyEmpty(userDTO)) {
-            newUserDTO = saveAndReturnDTO(userMapper.userDtoToUser(userDTO));
-        }
-
-        return newUserDTO;
-    }
-
-
-    @Override
-    public UserDTO updateUser(Long id, UserDTO userDTO) {
-        UserDTO updatedUser = new UserDTO();
-        User existingUser = new User();
-        try {
-            existingUser = userRepository
-                    .findById(id)
-                    .orElseThrow(() -> new ResourceNotFoundException("User", "id", id));
-
-            existingUser.setFirstName(userDTO.getFirstName());
-            existingUser.setLastName(userDTO.getLastName());
-            existingUser.setEmail(userDTO.getEmail());
-            existingUser.setPassword(userDTO.getPassword());
-            existingUser.setAbout(userDTO.getAbout());
-
-            updatedUser = userMapper.userToUserDto(userRepository.save(existingUser));
-
-        } catch (ResourceNotFoundException RNFE) {
-            RNFE.getMessage();
-        }
-
-        return updatedUser;
-    }
-
-
-    @Override
-    public void deleteUser(Long id) {
-
-        try {
-            userRepository.deleteById(id);
-        } catch (EmptyResultDataAccessException ERDAE) {
-            ERDAE.getMessage();
-            ERDAE.getCause();
-            throw new ResourceNotFoundException("User", "id", id);
-        }
-
-    }
-
-
-    @Override
-    public UserDTO registerUser(UserDTO userDTO) {
-
-        User newUser = userMapper.userDtoToUser(userDTO);
-
-//      encoding the password
-        newUser.setPassword(passwordEncoder.encode(newUser.getPassword()));
-
-//        roles
-        Role role = roleRepository.findById(AppConstants.ROLE_NORMAL_CODE).get();
-        System.out.println("find role by id: " + role.toString());
-        newUser.getRoles().add(role);
-
-        User registeredUser = userRepository.save(newUser);
-
-        return userMapper.userToUserDto(registeredUser);
-    }
-
-
-    //  PRIVATE methods
-    private UserDTO saveAndReturnDTO(User user) {
-        UserDTO returnedDto = new UserDTO();
-        User savedUser = new User();
-
-        if (user != null) {
-            savedUser = userRepository.save(user);
-            returnedDto = userMapper.userToUserDto(savedUser);
-        }
-
-        return returnedDto;
-    }
-
+    return returnedDto;
+  }
 
 }

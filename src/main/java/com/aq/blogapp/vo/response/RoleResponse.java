@@ -13,8 +13,7 @@ import lombok.RequiredArgsConstructor;
 public class RoleResponse {
 
     private int roleId;
-
     private int roleCode;
+    private String roleName;
 
-    private String role;
 }

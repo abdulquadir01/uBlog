@@ -1,17 +1,16 @@
 package com.aq.blogapp.utils.mappers;
 
-import com.aq.blogapp.vo.DTO.BlogDTO;
 import com.aq.blogapp.entity.Blog;
+import com.aq.blogapp.vo.dto.BlogDto;
 import org.mapstruct.Mapper;
 import org.mapstruct.factory.Mappers;
-
 
 @Mapper
 public interface BlogMapper {
 
     BlogMapper INSTANCE = Mappers.getMapper(BlogMapper.class);
 
-    Blog blogDtoToBlog(BlogDTO blogDTO);
+    Blog blogDtoToBlog(BlogDto blogDTO);
 
-    BlogDTO blogToBlogDto(Blog blog);
+    BlogDto blogToBlogDto(Blog blog);
 }

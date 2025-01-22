@@ -1,6 +1,9 @@
 package com.aq.blogapp.vo.response;
 
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.RequiredArgsConstructor;
 
 
 @Data
@@ -10,8 +13,7 @@ import lombok.*;
 public class CategoryResponse {
 
     private Long categoryId;
-
     private String categoryTitle;
-
     private String categoryDescription;
+
 }

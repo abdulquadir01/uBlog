@@ -1,6 +1,9 @@
-package com.aq.blogapp.vo.DTO;
+package com.aq.blogapp.vo.dto;
 
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.RequiredArgsConstructor;
 
 import java.util.LinkedHashSet;
 import java.util.Set;
@@ -9,7 +12,7 @@ import java.util.Set;
 @Builder
 @AllArgsConstructor
 @RequiredArgsConstructor
-public class BlogDTO {
+public class BlogDto {
 
     private Long blogId;
 
@@ -29,12 +32,10 @@ public class BlogDTO {
 //    @Size(min=4, message = "Provide date of blogging")
     private String bloggedDate;
 
+    private CategoryDto category;
 
-    private CategoryDTO category;
+    private UserDto user;
 
-    private UserDTO user;
-
-    private Set<CommentDTO> comments = new LinkedHashSet<>();
-
+    private Set<CommentDto> comments = new LinkedHashSet<>();
 
 }

@@ -1,25 +1,18 @@
 package com.aq.blogapp.services;
 
-import com.aq.blogapp.vo.DTO.UserDTO;
+import com.aq.blogapp.vo.dto.UserDto;
 
 import java.util.List;
 
 
 public interface UserService {
 
-
-    UserDTO registerUser(UserDTO user);
-
-    List<UserDTO> getAllUsers();
-
-    UserDTO getUserById(Long id);
-
-    UserDTO getUserByEmail(String email);
-
-    UserDTO createUser(UserDTO user);
-
-    UserDTO updateUser(Long id, UserDTO user);
-
+    UserDto registerUser(UserDto user);
+    List<UserDto> getAllUsers();
+    UserDto getUserById(Long id);
+    UserDto getUserByEmail(String email);
+    UserDto createUser(UserDto user);
+    UserDto updateUser(Long id, UserDto user);
     void deleteUser(Long id);
 
 }

@@ -1,10 +1,10 @@
 package com.aq.blogapp.entity;
 
-import lombok.*;
-
-import javax.persistence.*;
-
-
+import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.RequiredArgsConstructor;
 
 
 @Data
@@ -14,23 +14,22 @@ import javax.persistence.*;
 @Entity(name = "comments")
 public class Comment {
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long commentId;
+  @Id
+  @GeneratedValue(strategy = GenerationType.IDENTITY)
+  private Long commentId;
 
-    private String comment;
+  private String commentString;
 
-    private String date;
+  private String date;
 
-    @ManyToOne
-    @JoinColumn(name = "user_id")
+  @ManyToOne
+  @JoinColumn(name = "user_id")
 //    @ToString.Exclude
-    private User user;
+  private User user;
 
-
-    @ManyToOne
-    @JoinColumn(name = "blog_id")
+  @ManyToOne
+  @JoinColumn(name = "blog_id")
 //    @ToString.Exclude
-    private Blog blog;
+  private Blog blog;
 
 }

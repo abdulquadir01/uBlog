@@ -1,4 +1,4 @@
-package com.aq.blogapp.config.authConfig;
+package com.aq.blogapp.configurations.service;
 
 import com.aq.blogapp.exceptions.ResourceNotFoundException;
 import com.aq.blogapp.respositories.UserRepository;
@@ -14,10 +14,6 @@ import org.springframework.stereotype.Service;
 public class CustomUserDetailService implements UserDetailsService {
 
     private final UserRepository userRepository;
-
-//    public CustomUserDetailService(UserRepository userRepository) {
-//        this.userRepository = userRepository;
-//    }
 
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {

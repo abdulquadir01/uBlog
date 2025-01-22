@@ -1,4 +1,4 @@
-package com.aq.blogapp.vo.request;
+package com.aq.blogapp.vo.dto;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -10,7 +10,8 @@ import lombok.RequiredArgsConstructor;
 @Builder
 @AllArgsConstructor
 @RequiredArgsConstructor
-public class JwtAuthRequest {
-    private String username;
-    private String password;
+public class RoleDto {
+
+    private int id;
+    private String roleName;
 }

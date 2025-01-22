@@ -11,7 +11,6 @@ import java.io.InputStream;
 public interface FileService {
 
     String uploadImg(String path, MultipartFile file) throws IOException;
-
     InputStream getBlogImage(String path, String fileName) throws FileNotFoundException;
 
 }

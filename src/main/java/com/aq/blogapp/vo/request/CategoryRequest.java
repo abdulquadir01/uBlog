@@ -1,12 +1,11 @@
 package com.aq.blogapp.vo.request;
 
+import jakarta.validation.constraints.NotEmpty;
+import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.RequiredArgsConstructor;
-
-import javax.validation.constraints.NotEmpty;
-import javax.validation.constraints.Size;
 
 @Data
 @Builder
@@ -21,6 +20,5 @@ public class CategoryRequest {
     @NotEmpty
     @Size(min = 25, message = "Category description must be at least 25 characters")
     private String categoryDescription;
-
 
 }

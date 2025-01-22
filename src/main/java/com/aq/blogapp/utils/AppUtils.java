@@ -8,67 +8,71 @@ import java.time.format.DateTimeFormatter;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
-
-
+import java.util.Objects;
 
 
 public class AppUtils {
 
+  private AppUtils() {
+    throw new IllegalStateException("Util class can't be instantiated.");
+  }
+
+
+  /**
+   * @param obj
+   * @return true if value of any obj property is null, otherwise false
+   */
+
+  public static Boolean anyEmpty(Object obj) {
+    ObjectMapper objectMapper = new ObjectMapper();
+    Map<String, Object> mappedObj = objectMapper.convertValue(obj, Map.class);
+    boolean result = false;
+
+    List<String> idList = Arrays.asList("userId", "categoryId");
+
+    for (Map.Entry<String, Object> entry : mappedObj.entrySet()) {
+      if (idList.contains(entry.getKey()) && mappedObj.get(entry.getKey()) == null) {
+        continue;
+      }
+      if (mappedObj.get(entry.getKey()) == null) {
+        result = true;
+        break;
+      }
+    }
+
+    return result;
+  }
+
+  /**
+   * @param newObj - new data
+   * @param oldObj - existing data
+   * @return an Object of type oldObj
+   */
+
+  public static Object saveNewToOld(Object newObj, Object oldObj) {
+    ObjectMapper objectMapper = new ObjectMapper();
+    Map<String, Object> mappedNewObj = objectMapper.convertValue(newObj, Map.class);
+    Map<String, Object> mappedOldObj = objectMapper.convertValue(oldObj, Map.class);
+
+    mappedNewObj.forEach((key, value) -> {
+      if (!Objects.equals(key, "id") && mappedNewObj.get(key) != null) {
+        mappedOldObj.put(key, mappedNewObj.get(key));
+      }
+    });
 
     /**
-     * @param obj
-     * @return true if value of any obj property is null, otherwise false
-     */
-
-    public static Boolean anyEmpty(Object obj) {
-        ObjectMapper objectMapper = new ObjectMapper();
-        Map<String, Object> mappedObj = objectMapper.convertValue(obj, Map.class);
-        Boolean result = false;
-
-        List<String> idList = Arrays.asList("userId", "categoryId");
-
-        for (String key : mappedObj.keySet()) {
-            if (idList.contains(key) && mappedObj.get(key) == null) {
-                continue;
-            }
-            if (mappedObj.get(key) == null) {
-                result = true;
-                break;
-            }
-        }
-
-        return result;
+    for (Object key : mappedNewObj.keySet()) {
+      if (key != "id" && mappedNewObj.get(key) != null) {
+        mappedOldObj.put((String) key, mappedNewObj.get(key));
+      }
     }
+*/
+    return objectMapper.convertValue(mappedOldObj, new TypeReference<Object>() { });
+  }
 
-    /**
-     * @param newObj - new data
-     * @param oldObj - existing data
-     * @return an Object of type oldObj
-     */
-
-    public static Object saveNewToOld(Object newObj, Object oldObj) {
-        ObjectMapper objectMapper = new ObjectMapper();
-        Map<String, Object> mappedNewObj = objectMapper.convertValue(newObj, Map.class);
-        Map<String, Object> mappedOldObj = objectMapper.convertValue(oldObj, Map.class);
-
-        for (Object key : mappedNewObj.keySet()) {
-            if (key != "id" && mappedNewObj.get(key) != null) {
-                mappedOldObj.put((String) key, mappedNewObj.get(key));
-            }
-        }
-
-        final Object obj = objectMapper.convertValue(mappedOldObj, new TypeReference<Object>() {
-        });
-
-        return obj;
-    }
-
-
-
-    public static String dateFormatter(LocalDateTime localDateTime){
-//        LocalDateTime localDateTime = LocalDateTime.now();
-        DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("dd-MM-yyyy HH:mm:ss");
-        return localDateTime.format(dateTimeFormatter);
-    }
+  public static String dateFormatter(LocalDateTime localDateTime) {
+    DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("dd-MM-yyyy HH:mm:ss");
+    return localDateTime.format(dateTimeFormatter);
+  }
 
 }

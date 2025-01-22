@@ -2,30 +2,27 @@ package com.aq.blogapp.services;
 
 import com.aq.blogapp.entity.Blog;
 import com.aq.blogapp.entity.User;
-import com.aq.blogapp.vo.DTO.CommentDTO;
+import com.aq.blogapp.vo.dto.CommentDto;
 
 import java.util.List;
 
 
-
-
-
 public interface CommentService {
 
-    List<CommentDTO> getAllComments();
+  List<CommentDto> getAllComments();
 
-    CommentDTO getCommentById(Long id);
+  CommentDto getCommentById(Long id);
 
-    List<CommentDTO> getCommentByUser(User user);
+  List<CommentDto> getCommentByUser(User user);
 
-    List<CommentDTO> getCommentByBlog(Blog blog);
+  List<CommentDto> getCommentByBlog(Blog blog);
 
-    List<CommentDTO> getCommentByUserOnBlog(User user, Blog blog);
+  List<CommentDto> getCommentByUserOnBlog(User user, Blog blog);
 
-    CommentDTO updateComment(Long id, CommentDTO commentDTO);
+  CommentDto updateComment(Long id, CommentDto commentDTO);
 
-    CommentDTO createComment(Long blogId, CommentDTO commentDTO);
+  CommentDto createComment(Long blogId, CommentDto commentDTO);
 
-    void deleteComment(Long commentId);
+  void deleteComment(Long commentId);
 
 }

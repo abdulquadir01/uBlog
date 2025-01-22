@@ -10,9 +10,9 @@ import lombok.RequiredArgsConstructor;
 @Builder
 @AllArgsConstructor
 @RequiredArgsConstructor
-public class JwtAuthResponse {
+public class AuthResponse {
 
-    private String token;
-    private Long userId;
+  private String token;
+  private Long userId;
 
 }
