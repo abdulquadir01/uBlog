@@ -4,5 +4,6 @@
       "name": "project.image",
       "type": "java.lang.String",
       "description": "Description for project.image."
-  }
-] }
+    }
+  ]
+}
